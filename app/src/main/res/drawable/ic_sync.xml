@@ -1,0 +1,10 @@
+<!-- File: res/drawable/ic_sync.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#000000"
+        android:pathData="M12,4V1L8,5l4,4V6c3.31,0 6,2.69 6,6 0,1.1 -0.3,2.13 -0.84,3.01l1.46,1.46C19.54,14.88 20,13.49 20,12 20,7.58 16.42,4 12,4zM6.54,5.54L5.08,4.08C4.46,4.92 4,6.31 4,8c0,4.42 3.58,8 8,8v3l4,-4 -4,-4v3c-3.31,0 -6,-2.69 -6,-6 0,-1.1 0.3,-2.13 0.84,-3.01z"/>
+</vector>

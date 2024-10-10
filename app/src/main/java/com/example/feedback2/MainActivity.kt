@@ -1,13 +1,18 @@
+// File: app/src/main/java/com/example/feedback2/MainActivity.kt
 package com.example.feedback2
 
 import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -15,6 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import scheduleAlarm
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,12 +28,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             NovelaApp()
         }
+        scheduleJob()
+        scheduleAlarm(this) // Programar la alarma para la sincronización diaria
     }
+
+    // Programación del JobScheduler para sincronización en segundo plano
     private fun scheduleJob() {
         val componentName = ComponentName(this, DataSyncJobService::class.java)
         val jobInfo = JobInfo.Builder(1, componentName)
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-            .setPeriodic(15 * 60 * 1000) // 15 minutes
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED) // Solo Wi-Fi
+            .setPeriodic(15 * 60 * 1000) // Cada 15 minutos
             .build()
 
         val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
@@ -47,7 +57,7 @@ fun NovelaApp() {
                 title = { Text(text = "Gestión de Novelas") }
             )
         }
-    ) {paddingValues ->
+    ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             NavigationHost(navController = navController, viewModel = viewModel)
         }
@@ -74,7 +84,7 @@ fun NavigationHost(navController: NavHostController, viewModel: NovelaViewModel)
             }
         }
         composable("detalles/{titulo}") { backStackEntry ->
-            val titulo = backStackEntry.arguments?.getString("titulo")
+            val titulo = backStackEntry.arguments?.getString("titulo") ?: "Título no disponible"
             val novela = viewModel.novelas.firstOrNull { it.titulo == titulo }
             novela?.let {
                 DetallesNovela(
@@ -83,7 +93,7 @@ fun NavigationHost(navController: NavHostController, viewModel: NovelaViewModel)
                         viewModel.marcarFavorita(novela)
                     },
                     onVolver = { navController.popBackStack() }
-                    )
+                )
             }
         }
         composable("resenas") {
@@ -92,12 +102,12 @@ fun NavigationHost(navController: NavHostController, viewModel: NovelaViewModel)
             }
         }
         composable("agregar_resena/{titulo}") { backStackEntry ->
-            val titulo = backStackEntry.arguments?.getString("titulo")
+            val titulo = backStackEntry.arguments?.getString("titulo") ?: "Título no disponible"
             val novela = viewModel.novelas.firstOrNull { it.titulo == titulo }
             novela?.let {
                 AgregarResena(novela = it) { resena ->
                     viewModel.agregarResena(novela, resena)
-                    navController.popBackStack() //Regresar a la pantalla de reseñas
+                    navController.popBackStack() // Regresar a la pantalla de reseñas
                 }
             }
         }
