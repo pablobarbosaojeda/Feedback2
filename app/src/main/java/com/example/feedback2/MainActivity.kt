@@ -1,5 +1,7 @@
 package com.example.feedback2
 
+import android.app.job.JobInfo
+import android.content.ComponentName
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,6 +22,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             NovelaApp()
         }
+    }
+    private fun scheduleJob() {
+        val componentName = ComponentName(this, DataSyncJobService::class.java)
+        val jobInfo = JobInfo.Builder(1, componentName)
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+            .setPeriodic(15 * 60 * 1000) // 15 minutes
+            .build()
+
+        val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler.schedule(jobInfo)
     }
 }
 
