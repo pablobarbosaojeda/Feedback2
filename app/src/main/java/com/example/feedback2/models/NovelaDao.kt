@@ -3,6 +3,7 @@ package com.example.feedback2
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
+import com.example.feedback2.com.example.feedback2.DatabaseHelper
 
 class NovelaDao(context: Context) {
     private val dbHelper = DatabaseHelper(context)

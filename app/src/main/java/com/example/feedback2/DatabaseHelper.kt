@@ -1,5 +1,4 @@
-
-package com.example.feedback2
+package com.example.feedback2.com.example.feedback2
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
