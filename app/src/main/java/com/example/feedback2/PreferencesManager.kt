@@ -14,4 +14,9 @@ class PreferencesManager(context: Context) {
     fun isDarkMode(): Boolean {
         return preferences.getBoolean("dark_mode", false)
     }
+
+    fun toggleTheme() {
+        val isDarkMode = isDarkMode()
+        setTheme(!isDarkMode)
+    }
 }

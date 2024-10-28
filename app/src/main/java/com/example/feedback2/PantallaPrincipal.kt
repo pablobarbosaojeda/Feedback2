@@ -20,7 +20,8 @@ fun PantallaPrincipal(
     novelas: List<Novela>,
     onAgregarClick: () -> Unit,
     onEliminarClick: (Novela) -> Unit,
-    onVerDetallesClick: (Novela) -> Unit
+    onVerDetallesClick: (Novela) -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     Scaffold(
         floatingActionButton = {
@@ -30,27 +31,32 @@ fun PantallaPrincipal(
         }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            LazyColumn {
-                items(novelas) { novela ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onVerDetallesClick(novela) }
-                            .padding(8.dp)
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(text = novela.titulo, style = MaterialTheme.typography.titleLarge)
-                            Text(text = "Autor: ${novela.autor}")
-                        }
-                        if (novela.esFavorita) {
-                            Icon(
-                                Icons.Default.Star,
-                                contentDescription = "Favorita",
-                                tint = Color.Yellow
-                            )
-                        }
-                        IconButton(onClick = { onEliminarClick(novela) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Eliminar Novela")
+            Column {
+                Button(onClick = onSettingsClick) {
+                    Text("Configuración")
+                }
+                LazyColumn {
+                    items(novelas) { novela ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .clickable { onVerDetallesClick(novela) }
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = novela.titulo, style = MaterialTheme.typography.titleLarge)
+                                Text(text = "Autor: ${novela.autor}")
+                            }
+                            if (novela.esFavorita) {
+                                Icon(
+                                    Icons.Default.Star,
+                                    contentDescription = "Favorita",
+                                    tint = Color.Yellow
+                                )
+                            }
+                            IconButton(onClick = { onEliminarClick(novela) }) {
+                                Icon(Icons.Default.Delete, contentDescription = "Eliminar Novela")
+                            }
                         }
                     }
                 }
@@ -64,11 +70,12 @@ fun PantallaPrincipal(
 fun PreviewPantallaPrincipal() {
     PantallaPrincipal(
         novelas = listOf(
-            Novela("Novela 1", "Autor 1", 2022, "Sinopsis 1"),
-            Novela("Novela 2", "Autor 2", 2021, "Sinopsis 2", esFavorita = true)
+            Novela("Título 1", "Autor 1", 2021, "Sinopsis 1", esFavorita = true),
+            Novela("Título 2", "Autor 2", 2022, "Sinopsis 2", esFavorita = false)
         ),
         onAgregarClick = {},
         onEliminarClick = {},
-        onVerDetallesClick = {}
+        onVerDetallesClick = {},
+        onSettingsClick = {}
     )
 }
