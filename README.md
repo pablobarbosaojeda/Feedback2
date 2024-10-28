@@ -32,4 +32,10 @@
 ### 5. Añadir Reseñas
 - Los usuarios pueden escribir y guardar reseñas para cada novela, mejorando su registro personal y proporcionando un recurso útil para futuras lecturas.
 
+### 6. Configuración
+- Los usuarios pueden acceder a una pantalla de configuración donde pueden:
+  - Realizar copias de seguridad de la base de datos de novelas.
+  - Restaurar la base de datos de novelas desde una copia de seguridad.
 
+### 7. Sincronización en Segundo Plano
+- La aplicación realiza sincronizaciones periódicas en segundo plano para mantener los datos actualizados.
