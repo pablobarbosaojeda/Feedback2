@@ -1,20 +1,41 @@
 package com.example.feedback2
 
+import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class NovelaViewModel : ViewModel() {
-
-    //Lista de novelas en memoria
+class NovelaViewModel(application: Application) : AndroidViewModel(application) {
+    private val novelaDao = NovelaDao(application)
     private val _novelas = mutableStateListOf<Novela>()
     val novelas: List<Novela> get() = _novelas
 
+    init {
+        loadNovelas()
+    }
+
+    private fun loadNovelas() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val novelasFromDb = novelaDao.getAllNovelas()
+            _novelas.clear()
+            _novelas.addAll(novelasFromDb)
+        }
+    }
+
     fun agregarNovela(novela: Novela) {
-        _novelas.add(novela)
+        viewModelScope.launch(Dispatchers.IO) {
+            novelaDao.addNovela(novela)
+            loadNovelas()
+        }
     }
 
     fun eliminarNovela(novela: Novela) {
-        _novelas.remove(novela)
+        viewModelScope.launch(Dispatchers.IO) {
+            novelaDao.deleteNovela(novela.titulo)
+            loadNovelas()
+        }
     }
 
     fun marcarFavorita(novela: Novela) {
@@ -25,6 +46,9 @@ class NovelaViewModel : ViewModel() {
     }
 
     fun agregarResena(novela: Novela, resena: String) {
-        novela.resenas.add(resena)
+        val index = _novelas.indexOf(novela)
+        if (index >= 0) {
+            _novelas[index].resenas.add(resena)
+        }
     }
 }
