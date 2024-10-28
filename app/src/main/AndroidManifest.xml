@@ -4,6 +4,9 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- File: app/src/main/AndroidManifest.xml -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -27,7 +30,6 @@
             </intent-filter>
         </activity>
         <!-- Add this inside the <application> tag in AndroidManifest.xml -->
-        <activity android:name=".SettingsActivity" android:exported="true" />
 
         <!-- WifiBroadcastReceiver declaration -->
         <receiver android:name=".WifiBroadcastReceiver"

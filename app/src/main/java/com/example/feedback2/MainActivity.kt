@@ -1,9 +1,10 @@
-// File: app/src/main/java/com/example/feedback2/MainActivity.kt
 package com.example.feedback2
 
+import android.Manifest
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -23,20 +26,37 @@ import androidx.navigation.compose.rememberNavController
 
 class MainActivity : ComponentActivity() {
     private lateinit var preferencesManager: PreferencesManager
+    private lateinit var internalStorageManager: InternalStorageManager
+    private lateinit var externalStorageManager: ExternalStorageManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferencesManager = PreferencesManager(this)
+        internalStorageManager = InternalStorageManager(this)
+        externalStorageManager = ExternalStorageManager(this)
+
+        // Request permissions for external storage
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        }
 
         // Example of setting and getting the theme
         preferencesManager.setTheme(true) // Set dark mode
-        preferencesManager.isDarkMode() // Get dark mode state
+        val isDarkMode = preferencesManager.isDarkMode() // Get dark mode state
 
         setContent {
             NovelaApp()
         }
         scheduleJob()
         scheduleAlarm(this) // Schedule the alarm for daily sync
+    }
+
+    // Handle permission result
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // Permission granted
+        }
     }
 
     // Schedule JobScheduler for background sync
