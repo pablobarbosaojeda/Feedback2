@@ -26,6 +26,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- Add this inside the <application> tag in AndroidManifest.xml -->
+        <activity android:name=".SettingsActivity" android:exported="true" />
 
         <!-- WifiBroadcastReceiver declaration -->
         <receiver android:name=".WifiBroadcastReceiver"

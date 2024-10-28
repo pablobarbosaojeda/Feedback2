@@ -20,24 +20,31 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import scheduleAlarm
 
 class MainActivity : ComponentActivity() {
+    private lateinit var preferencesManager: PreferencesManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        preferencesManager = PreferencesManager(this)
+
+        // Example of setting and getting the theme
+        preferencesManager.setTheme(true) // Set dark mode
+        preferencesManager.isDarkMode() // Get dark mode state
+
         setContent {
             NovelaApp()
         }
         scheduleJob()
-        scheduleAlarm(this) // Programar la alarma para la sincronización diaria
+        scheduleAlarm(this) // Schedule the alarm for daily sync
     }
 
-    // Programación del JobScheduler para sincronización en segundo plano
+    // Schedule JobScheduler for background sync
     private fun scheduleJob() {
         val componentName = ComponentName(this, DataSyncJobService::class.java)
         val jobInfo = JobInfo.Builder(1, componentName)
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED) // Solo Wi-Fi
-            .setPeriodic(15 * 60 * 1000) // Cada 15 minutos
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED) // Only Wi-Fi
+            .setPeriodic(15 * 60 * 1000) // Every 15 minutes
             .build()
 
         val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
@@ -107,7 +114,7 @@ fun NavigationHost(navController: NavHostController, viewModel: NovelaViewModel)
             novela?.let {
                 AgregarResena(novela = it) { resena ->
                     viewModel.agregarResena(novela, resena)
-                    navController.popBackStack() // Regresar a la pantalla de reseñas
+                    navController.popBackStack() // Return to the reviews screen
                 }
             }
         }
