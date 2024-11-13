@@ -39,11 +39,14 @@ class NovelaViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun marcarFavorita(novela: Novela) {
-        val index = _novelas.indexOf(novela)
-        if (index >= 0) {
-            _novelas[index] = _novelas[index].copy(esFavorita = !novela.esFavorita)
+        viewModelScope.launch(Dispatchers.IO) {
+            val novelaActualizada = novela.copy(esFavorita = !novela.esFavorita)
+            novelaDao.updateNovela(novelaActualizada) // Asegura que updateNovela esté implementado en NovelaDao
+            loadNovelas() // Recarga la lista de novelas para reflejar los cambios
         }
     }
+
+
 
     fun agregarResena(novela: Novela, resena: String) {
         val index = _novelas.indexOf(novela)
