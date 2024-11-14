@@ -14,7 +14,8 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -43,20 +44,20 @@ class MainActivity : ComponentActivity() {
         internalStorageManager = InternalStorageManager(this)
         externalStorageManager = ExternalStorageManager(this)
 
-        // Apply the theme based on the preference
+        // Aplicar tema basado en la preferencia
         val isDarkMode = preferencesManager.isDarkMode()
         AppCompatDelegate.setDefaultNightMode(
             if (isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         )
 
-        // Request permissions for external storage
+        // Solicitar permisos
         requestStoragePermissions()
 
         setContent {
             NovelaApp()
         }
+
         scheduleJob()
-        scheduleAlarm(this) // Schedule the alarm for daily sync
     }
 
     private fun requestStoragePermissions() {
@@ -65,24 +66,24 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Handle permission result
+    // Manejar resultado de permisos
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Permiso concedido", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Permiso denegado", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Schedule JobScheduler for background sync
+    // Programar JobScheduler para sincronización en segundo plano
     private fun scheduleJob() {
         val componentName = ComponentName(this, DataSyncJobService::class.java)
         val jobInfo = JobInfo.Builder(1, componentName)
-            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED) // Only Wi-Fi
-            .setPeriodic(15 * 60 * 1000) // Every 15 minutes
+            .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED) // Solo Wi-Fi
+            .setPeriodic(15 * 60 * 1000) // Cada 15 minutos
             .build()
 
         val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
@@ -90,6 +91,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// Función para hacer respaldo de la base de datos
 fun backupDatabase(context: Context) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
         ActivityCompat.requestPermissions(context as MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
@@ -113,13 +115,14 @@ fun backupDatabase(context: Context) {
                 }
             }
         }
-        Toast.makeText(context, "Backup successful", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Respaldo exitoso", Toast.LENGTH_SHORT).show()
     } catch (e: IOException) {
         e.printStackTrace()
-        Toast.makeText(context, "Backup failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Respaldo fallido: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
 
+// Función para restaurar la base de datos
 fun restoreDatabase(context: Context) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
         ActivityCompat.requestPermissions(context as MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
@@ -143,13 +146,14 @@ fun restoreDatabase(context: Context) {
                 }
             }
         }
-        Toast.makeText(context, "Restore successful", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Restauración exitosa", Toast.LENGTH_SHORT).show()
     } catch (e: IOException) {
         e.printStackTrace()
-        Toast.makeText(context, "Restore failed: ${e.message}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Restauración fallida: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
 
+// Configuración de la aplicación con Jetpack Compose
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NovelaApp() {
@@ -176,10 +180,13 @@ fun NovelaApp() {
 
 @Composable
 fun NavigationHost(navController: NavHostController, viewModel: NovelaViewModel) {
+    // Observa el estado de las novelas desde LiveData
+    val novelas by viewModel.novelas.observeAsState(emptyList())
+
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {
             PantallaPrincipal(
-                novelas = viewModel.novelas,
+                novelas = novelas,  // Pasa la lista observada
                 onAgregarClick = { navController.navigate("agregar") },
                 onEliminarClick = { novela: Novela -> viewModel.eliminarNovela(novela) },
                 onVerDetallesClick = { novela: Novela ->
@@ -205,13 +212,11 @@ fun NavigationHost(navController: NavHostController, viewModel: NovelaViewModel)
         }
         composable("detalles/{titulo}") { backStackEntry ->
             val titulo = backStackEntry.arguments?.getString("titulo") ?: "Título no disponible"
-            val novela = viewModel.novelas.firstOrNull { it.titulo == titulo }
+            val novela = novelas.firstOrNull { it.titulo == titulo } // Busca la novela en la lista observada
             novela?.let {
                 DetallesNovela(
                     novela = it,
-                    onMarcarFavorita = { novela: Novela ->
-                        viewModel.marcarFavorita(novela)
-                    },
+                    onMarcarFavorita = { viewModel.marcarFavorita(it) },
                     onVolver = { navController.popBackStack() }
                 )
             }

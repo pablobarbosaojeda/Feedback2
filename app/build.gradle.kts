@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -63,6 +64,9 @@ dependencies {
     // RecyclerView for displaying lists
     implementation("androidx.recyclerview:recyclerview:1.3.1")
 
+    // WorkManager for background tasks
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
+
     // Material Design Components
     implementation(libs.androidx.material3)
     implementation("com.google.android.material:material:1.4.0")
@@ -75,8 +79,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.loader)
-    implementation ("androidx.work:work-runtime-ktx:2.7.1") // Usa la última versión disponible
-
+    implementation(libs.androidx.runtime.livedata)
 
     // Test Libraries
     testImplementation(libs.junit)

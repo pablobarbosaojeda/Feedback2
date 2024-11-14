@@ -1,16 +1,19 @@
 package com.example.feedback2
-
 import android.app.Application
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.feedback2.Novela
+import com.example.feedback2.NovelaDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class NovelaViewModel(application: Application) : AndroidViewModel(application) {
     private val novelaDao = NovelaDao(application)
-    private val _novelas = mutableStateListOf<Novela>()
-    val novelas: List<Novela> get() = _novelas
+
+    private val _novelas = MutableLiveData<List<Novela>>()
+    val novelas: LiveData<List<Novela>> get() = _novelas
 
     init {
         loadNovelas()
@@ -19,8 +22,7 @@ class NovelaViewModel(application: Application) : AndroidViewModel(application) 
     private fun loadNovelas() {
         viewModelScope.launch(Dispatchers.IO) {
             val novelasFromDb = novelaDao.getAllNovelas()
-            _novelas.clear()
-            _novelas.addAll(novelasFromDb)
+            _novelas.postValue(novelasFromDb)
         }
     }
 
@@ -41,17 +43,15 @@ class NovelaViewModel(application: Application) : AndroidViewModel(application) 
     fun marcarFavorita(novela: Novela) {
         viewModelScope.launch(Dispatchers.IO) {
             val novelaActualizada = novela.copy(esFavorita = !novela.esFavorita)
-            novelaDao.updateNovela(novelaActualizada) // Asegura que updateNovela esté implementado en NovelaDao
+            novelaDao.updateNovela(novelaActualizada) // Asegúrate de que `updateNovela` esté implementado en `NovelaDao`
             loadNovelas() // Recarga la lista de novelas para reflejar los cambios
         }
     }
 
-
-
     fun agregarResena(novela: Novela, resena: String) {
-        val index = _novelas.indexOf(novela)
-        if (index >= 0) {
-            _novelas[index].resenas.add(resena)
+        viewModelScope.launch(Dispatchers.IO) {
+            // Lógica para agregar la reseña en la base de datos si es necesario
+            loadNovelas() // Recarga la lista para reflejar el cambio en la interfaz
         }
     }
 }

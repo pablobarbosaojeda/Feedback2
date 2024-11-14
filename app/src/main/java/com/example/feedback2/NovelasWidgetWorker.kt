@@ -22,7 +22,7 @@ class NovelasWidgetWorker(appContext: Context, workerParams: WorkerParameters) :
                 ComponentName(context, NovelasWidgetProvider::class.java)
             )
 
-            val novelaDao = NovelaDao(context)
+            val novelaDao = NovelaDao(context)  // Asume que tienes implementado un DAO para tu base de datos
             val favoritos = novelaDao.getFavoriteNovelas()
 
             val favoritosText = if (favoritos.isNotEmpty()) {
@@ -39,7 +39,7 @@ class NovelasWidgetWorker(appContext: Context, workerParams: WorkerParameters) :
 
             Result.success()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("NovelasWidgetWorker", "Error actualizando el widget", e)
             Result.failure()
         }
     }
