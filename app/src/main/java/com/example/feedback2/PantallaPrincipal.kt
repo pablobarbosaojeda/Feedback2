@@ -8,13 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.ui.graphics.Color
 
 @Composable
 fun PantallaPrincipal(
@@ -38,37 +38,47 @@ fun PantallaPrincipal(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+            if (novelas.isEmpty()) {
+                // Mostrar un mensaje si la lista está vacía
                 Text(
-                    text = "Gestión de Novelas",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    text = "No hay novelas disponibles",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontSize = 18.sp,
+                    modifier = Modifier.align(Alignment.Center)
                 )
-                Button(
-                    onClick = onSettingsClick,
+            } else {
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Configuración")
-                }
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    items(novelas) { novela ->
-                        NovelaItem(
-                            novela = novela,
-                            onVerDetallesClick = { onVerDetallesClick(novela) },
-                            onEliminarClick = { onEliminarClick(novela) }
-                        )
+                    Text(
+                        text = "Gestión de Novelas",
+                        style = MaterialTheme.typography.headlineMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    Button(
+                        onClick = onSettingsClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    ) {
+                        Text("Configuración")
+                    }
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        items(novelas) { novela ->
+                            NovelaItem(
+                                novela = novela,
+                                onVerDetallesClick = { onVerDetallesClick(novela) },
+                                onEliminarClick = { onEliminarClick(novela) }
+                            )
+                        }
                     }
                 }
             }

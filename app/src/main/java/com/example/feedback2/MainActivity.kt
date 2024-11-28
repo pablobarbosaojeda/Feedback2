@@ -66,17 +66,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Manejar resultado de permisos
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == 1) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permiso concedido", Toast.LENGTH_SHORT).show()
+                // Acciones específicas al obtener permisos
             } else {
                 Toast.makeText(this, "Permiso denegado", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
     // Programar JobScheduler para sincronización en segundo plano
     private fun scheduleJob() {
@@ -91,36 +96,35 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Función para hacer respaldo de la base de datos
 fun backupDatabase(context: Context) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-        ActivityCompat.requestPermissions(context as MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        ActivityCompat.requestPermissions(
+            context as MainActivity,
+            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            1
+        )
         return
     }
 
     val dbFile = context.getDatabasePath("novelas.db")
-    val backupFile = File(Environment.getExternalStorageDirectory(), "novelas_backup.db")
+    val backupFile = File(
+        context.getExternalFilesDir(null),
+        "novelas_backup_${System.currentTimeMillis()}.db"
+    )
 
     try {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            FileChannel.open(dbFile.toPath()).use { source: FileChannel ->
-                FileChannel.open(backupFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE).use { destination: FileChannel ->
-                    destination.transferFrom(source, 0, source.size())
-                }
-            }
-        } else {
-            FileInputStream(dbFile).use { source ->
-                FileOutputStream(backupFile).use { destination ->
-                    destination.channel.transferFrom(source.channel, 0, source.channel.size())
-                }
+        FileInputStream(dbFile).use { source ->
+            FileOutputStream(backupFile).use { destination ->
+                destination.channel.transferFrom(source.channel, 0, source.channel.size())
             }
         }
-        Toast.makeText(context, "Respaldo exitoso", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Respaldo exitoso en: ${backupFile.path}", Toast.LENGTH_SHORT).show()
     } catch (e: IOException) {
         e.printStackTrace()
         Toast.makeText(context, "Respaldo fallido: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
+
 
 // Función para restaurar la base de datos
 fun restoreDatabase(context: Context) {

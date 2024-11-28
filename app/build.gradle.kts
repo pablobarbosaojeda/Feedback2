@@ -81,6 +81,15 @@ dependencies {
     implementation(libs.androidx.loader)
     implementation(libs.androidx.runtime.livedata)
 
+    // Glide for image loading
+    implementation("com.github.bumptech.glide:glide:4.12.0")
+
+    // Retrofit and OkHttp for networking
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
+
     // Test Libraries
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

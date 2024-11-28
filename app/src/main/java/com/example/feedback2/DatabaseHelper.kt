@@ -3,6 +3,7 @@ package com.example.feedback2
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import java.lang.ref.WeakReference
 
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
@@ -16,6 +17,18 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val COLUMN_AUTHOR = "author"
         const val COLUMN_DESCRIPTION = "description"
         const val COLUMN_FAVORITE = "esFavorita"
+
+        // Singleton para optimizar el acceso a la base de datos
+        @Volatile
+        private var instance: WeakReference<DatabaseHelper>? = null
+
+        fun getInstance(context: Context): DatabaseHelper {
+            return instance?.get() ?: synchronized(this) {
+                val newInstance = DatabaseHelper(context.applicationContext)
+                instance = WeakReference(newInstance)
+                newInstance
+            }
+        }
     }
 
     private val CREATE_TABLE_NOVELAS = """

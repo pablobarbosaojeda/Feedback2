@@ -22,7 +22,12 @@ class NovelasWidgetWorker(appContext: Context, workerParams: WorkerParameters) :
                 ComponentName(context, NovelasWidgetProvider::class.java)
             )
 
-            val novelaDao = NovelaDao(context)  // Asume que tienes implementado un DAO para tu base de datos
+            if (appWidgetIds.isEmpty()) {
+                Log.d("NovelasWidgetWorker", "No hay widgets activos")
+                return@withContext Result.success()
+            }
+
+            val novelaDao = NovelaDao(context) // Asume que tienes implementado un DAO para tu base de datos
             val favoritos = novelaDao.getFavoriteNovelas()
 
             val favoritosText = if (favoritos.isNotEmpty()) {
@@ -31,16 +36,26 @@ class NovelasWidgetWorker(appContext: Context, workerParams: WorkerParameters) :
                 "No hay novelas favoritas"
             }
 
-            appWidgetIds.forEach { appWidgetId ->
-                val views = RemoteViews(context.packageName, R.layout.novelas_widget)
-                views.setTextViewText(R.id.favoritesList, favoritosText)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-            }
+            updateWidgets(appWidgetManager, appWidgetIds, favoritosText, context)
 
             Result.success()
         } catch (e: Exception) {
             Log.e("NovelasWidgetWorker", "Error actualizando el widget", e)
             Result.failure()
         }
+    }
+
+    private fun updateWidgets(
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray,
+        favoritosText: String,
+        context: Context
+    ) {
+        appWidgetIds.forEach { appWidgetId ->
+            val views = RemoteViews(context.packageName, R.layout.novelas_widget)
+            views.setTextViewText(R.id.favoritesList, favoritosText)
+            appWidgetManager.updateAppWidget(appWidgetId, views)
+        }
+        Log.d("NovelasWidgetWorker", "Widgets actualizados exitosamente")
     }
 }

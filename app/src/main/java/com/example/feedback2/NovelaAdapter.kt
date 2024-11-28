@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.lang.ref.WeakReference
 
 class NovelaAdapter(
     private var novelas: List<Novela>,
@@ -19,7 +20,9 @@ class NovelaAdapter(
     override fun onBindViewHolder(holder: NovelaViewHolder, position: Int) {
         val novela = novelas[position]
         holder.bind(novela)
-        holder.itemView.setOnClickListener { clickListener(novela) }
+        holder.itemView.setOnClickListener {
+            WeakReference(clickListener).get()?.invoke(novela)
+        }
     }
 
     override fun getItemCount(): Int = novelas.size

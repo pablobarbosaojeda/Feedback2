@@ -1,22 +1,32 @@
 package com.example.feedback2
 
 import android.content.Context
-import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.IOException
 
 class InternalStorageManager(private val context: Context) {
 
-    fun saveData(fileName: String, data: String) {
-        val fileOutputStream: FileOutputStream = context.openFileOutput(fileName, Context.MODE_PRIVATE)
-        fileOutputStream.write(data.toByteArray())
-        fileOutputStream.close()
+    fun saveData(fileName: String, data: String): Boolean {
+        return try {
+            context.openFileOutput(fileName, Context.MODE_PRIVATE).use { output ->
+                output.write(data.toByteArray())
+            }
+            true
+        } catch (e: IOException) {
+            e.printStackTrace()
+            false
+        }
     }
 
-    fun readData(fileName: String): String {
-        val fileInputStream: FileInputStream = context.openFileInput(fileName)
-        val data = fileInputStream.readBytes().toString(Charsets.UTF_8)
-        fileInputStream.close()
-        return data
+    fun readData(fileName: String): String? {
+        return try {
+            context.openFileInput(fileName).use { input ->
+                input.readBytes().toString(Charsets.UTF_8)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
     }
 }
