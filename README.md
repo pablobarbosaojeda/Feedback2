@@ -1,4 +1,4 @@
-# FEEDBACK 4 Pablo Barbosa Ojeda
+# FEEDBACK 5 Pablo Barbosa Ojeda
 
 ## Link al Repositorio
 [https://github.com/pablobarbosaojeda/Feedback2.git](https://github.com/pablobarbosaojeda/Feedback2.git)
@@ -44,7 +44,7 @@
 ## Funcionalidades Adicionales
 
 ### 8. Widgets
-- La aplicación incluye un widget de pantalla de inicio que permite a los usuarios ver una lista de sus novelas favoritas de manera rápida y accesible. 
+- La aplicación incluye un widget de pantalla de inicio que permite a los usuarios ver una lista de sus novelas favoritas de manera rápida y accesible.
 - **Características del Widget**:
   - Muestra las novelas marcadas como favoritas en un formato compacto.
   - Permite abrir la aplicación directamente desde el widget para ver más detalles de las novelas.
@@ -58,3 +58,23 @@
 - **Ventajas de Usar Fragments**:
   - Facilita la creación de interfaces adaptativas, especialmente en dispositivos de pantalla grande.
   - Mejora la reutilización de componentes, ya que los fragments se pueden integrar en distintas actividades o configuraciones de layout.
+
+### 10. Optimización del Rendimiento y Uso de la Red
+- **Optimización de la Red**:
+  - Utiliza técnicas de compresión de datos para reducir el consumo de datos móviles y optimizar el rendimiento.
+  - Se utiliza el **Network Profiler** para analizar y optimizar el uso de la red, minimizando el consumo de datos y el tiempo de respuesta.
+
+- **Optimización de la Batería**:
+  - Implementación de controles de consumo de batería con la ayuda de **Battery Historian** para detectar y corregir posibles problemas de eficiencia de batería.
+  - Se limita la frecuencia de actualizaciones en segundo plano para reducir el impacto en el uso de la batería.
+
+### 11. Optimización de la Memoria
+- **Reducción de Fugas de Memoria**:
+  - Uso del **Memory Profiler** para identificar y solucionar posibles fugas de memoria.
+  - Implementación de técnicas para el uso eficiente de la memoria, como el reciclaje de vistas y el uso eficiente de `Bitmap`.
+
+### 12. Mejoras de la Interfaz de Usuario
+- **Interfaz Adaptativa**: La aplicación usa **Fragments** para crear interfaces modulares y adaptativas, mejorando la experiencia en dispositivos de diferentes tamaños de pantalla.
+
+---
+
