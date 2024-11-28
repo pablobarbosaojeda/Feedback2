@@ -14,7 +14,7 @@ class NovelasWidgetWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-        Log.d("NovelasWidgetWorker", "doWork: Actualizando el widget")
+        Log.d(TAG, "doWork: Iniciando actualización del widget")
         try {
             val context = applicationContext
             val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -23,29 +23,42 @@ class NovelasWidgetWorker(appContext: Context, workerParams: WorkerParameters) :
             )
 
             if (appWidgetIds.isEmpty()) {
-                Log.d("NovelasWidgetWorker", "No hay widgets activos")
+                Log.d(TAG, "No hay widgets activos para actualizar")
                 return@withContext Result.success()
             }
 
-            val novelaDao = NovelaDao(context) // Asume que tienes implementado un DAO para tu base de datos
-            val favoritos = novelaDao.getFavoriteNovelas()
-
-            val favoritosText = if (favoritos.isNotEmpty()) {
-                favoritos.joinToString(separator = "\n• ") { it.titulo }.prependIndent("• ")
-            } else {
-                "No hay novelas favoritas"
+            val favoritosText = obtenerTextoFavoritos(context)
+            if (favoritosText == null) {
+                Log.e(TAG, "Error al obtener los favoritos")
+                return@withContext Result.failure()
             }
 
-            updateWidgets(appWidgetManager, appWidgetIds, favoritosText, context)
+            actualizarWidgets(appWidgetManager, appWidgetIds, favoritosText, context)
 
             Result.success()
         } catch (e: Exception) {
-            Log.e("NovelasWidgetWorker", "Error actualizando el widget", e)
+            Log.e(TAG, "Error al actualizar los widgets", e)
             Result.failure()
         }
     }
 
-    private fun updateWidgets(
+    private suspend fun obtenerTextoFavoritos(context: Context): String? = withContext(Dispatchers.IO) {
+        try {
+            val novelaDao = NovelaDao(context) // Asume que tienes implementado un DAO para la base de datos
+            val favoritos = novelaDao.getFavoriteNovelas()
+
+            return@withContext if (favoritos.isNotEmpty()) {
+                favoritos.joinToString(separator = "\n• ") { it.titulo }.prependIndent("• ")
+            } else {
+                "No hay novelas favoritas"
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error al obtener los favoritos de la base de datos", e)
+            null
+        }
+    }
+
+    private fun actualizarWidgets(
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
         favoritosText: String,
@@ -56,6 +69,10 @@ class NovelasWidgetWorker(appContext: Context, workerParams: WorkerParameters) :
             views.setTextViewText(R.id.favoritesList, favoritosText)
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
-        Log.d("NovelasWidgetWorker", "Widgets actualizados exitosamente")
+        Log.d(TAG, "Widgets actualizados exitosamente")
+    }
+
+    companion object {
+        private const val TAG = "NovelasWidgetWorker"
     }
 }

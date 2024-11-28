@@ -61,8 +61,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun requestStoragePermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_CODE_STORAGE
+            )
         }
     }
 
@@ -72,21 +80,19 @@ class MainActivity : ComponentActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1) {
+        if (requestCode == REQUEST_CODE_STORAGE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permiso concedido", Toast.LENGTH_SHORT).show()
-                // Acciones específicas al obtener permisos
             } else {
                 Toast.makeText(this, "Permiso denegado", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-
     // Programar JobScheduler para sincronización en segundo plano
     private fun scheduleJob() {
         val componentName = ComponentName(this, DataSyncJobService::class.java)
-        val jobInfo = JobInfo.Builder(1, componentName)
+        val jobInfo = JobInfo.Builder(JOB_ID, componentName)
             .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED) // Solo Wi-Fi
             .setPeriodic(15 * 60 * 1000) // Cada 15 minutos
             .build()
@@ -94,14 +100,23 @@ class MainActivity : ComponentActivity() {
         val jobScheduler = getSystemService(JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.schedule(jobInfo)
     }
+
+    companion object {
+        const val REQUEST_CODE_STORAGE = 1
+        private const val JOB_ID = 1
+    }
 }
 
 fun backupDatabase(context: Context) {
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+    if (ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
         ActivityCompat.requestPermissions(
             context as MainActivity,
             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-            1
+            MainActivity.REQUEST_CODE_STORAGE
         )
         return
     }
@@ -120,44 +135,42 @@ fun backupDatabase(context: Context) {
         }
         Toast.makeText(context, "Respaldo exitoso en: ${backupFile.path}", Toast.LENGTH_SHORT).show()
     } catch (e: IOException) {
-        e.printStackTrace()
         Toast.makeText(context, "Respaldo fallido: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
 
-
-// Función para restaurar la base de datos
 fun restoreDatabase(context: Context) {
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-        ActivityCompat.requestPermissions(context as MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+    if (ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) != PackageManager.PERMISSION_GRANTED
+    ) {
+        ActivityCompat.requestPermissions(
+            context as MainActivity,
+            arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            MainActivity.REQUEST_CODE_STORAGE
+        )
         return
     }
 
     val dbFile = context.getDatabasePath("novelas.db")
-    val backupFile = File(Environment.getExternalStorageDirectory(), "novelas_backup.db")
+    val backupFile = File(
+        context.getExternalFilesDir(null),
+        "novelas_backup.db"
+    )
 
     try {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            FileChannel.open(backupFile.toPath()).use { source: FileChannel ->
-                FileChannel.open(dbFile.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE).use { destination: FileChannel ->
-                    destination.transferFrom(source, 0, source.size())
-                }
-            }
-        } else {
-            FileInputStream(backupFile).use { source ->
-                FileOutputStream(dbFile).use { destination ->
-                    destination.channel.transferFrom(source.channel, 0, source.channel.size())
-                }
+        FileInputStream(backupFile).use { source ->
+            FileOutputStream(dbFile).use { destination ->
+                destination.channel.transferFrom(source.channel, 0, source.channel.size())
             }
         }
         Toast.makeText(context, "Restauración exitosa", Toast.LENGTH_SHORT).show()
     } catch (e: IOException) {
-        e.printStackTrace()
         Toast.makeText(context, "Restauración fallida: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
 
-// Configuración de la aplicación con Jetpack Compose
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NovelaApp() {
@@ -184,16 +197,15 @@ fun NovelaApp() {
 
 @Composable
 fun NavigationHost(navController: NavHostController, viewModel: NovelaViewModel) {
-    // Observa el estado de las novelas desde LiveData
     val novelas by viewModel.novelas.observeAsState(emptyList())
 
     NavHost(navController = navController, startDestination = "main") {
         composable("main") {
             PantallaPrincipal(
-                novelas = novelas,  // Pasa la lista observada
+                novelas = novelas,
                 onAgregarClick = { navController.navigate("agregar") },
-                onEliminarClick = { novela: Novela -> viewModel.eliminarNovela(novela) },
-                onVerDetallesClick = { novela: Novela ->
+                onEliminarClick = { novela -> viewModel.eliminarNovela(novela) },
+                onVerDetallesClick = { novela ->
                     navController.navigate("detalles/${novela.titulo}")
                 },
                 onSettingsClick = { navController.navigate("settings") }
@@ -209,14 +221,14 @@ fun NavigationHost(navController: NavHostController, viewModel: NovelaViewModel)
             )
         }
         composable("agregar") {
-            AgregarNovela { novela: Novela ->
+            AgregarNovela { novela ->
                 viewModel.agregarNovela(novela)
                 navController.popBackStack()
             }
         }
         composable("detalles/{titulo}") { backStackEntry ->
             val titulo = backStackEntry.arguments?.getString("titulo") ?: "Título no disponible"
-            val novela = novelas.firstOrNull { it.titulo == titulo } // Busca la novela en la lista observada
+            val novela = novelas.firstOrNull { it.titulo == titulo }
             novela?.let {
                 DetallesNovela(
                     novela = it,
