@@ -9,6 +9,7 @@ data class Novela(
     val autor: String,
     val anioPublicacion: Int,
     val sinopsis: String,
+    val direccion: String, // Nuevo campo
     var esFavorita: Boolean = false,
     val resenas: MutableList<String> = mutableListOf()
 ) : Parcelable

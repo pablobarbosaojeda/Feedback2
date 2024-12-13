@@ -9,7 +9,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     companion object {
         const val DATABASE_NAME = "novelas.db"
-        const val DATABASE_VERSION = 2
+        const val DATABASE_VERSION = 3 // Incrementa la versión de la base de datos
 
         const val TABLE_NOVELAS = "novelas"
         const val COLUMN_ID = "id"
@@ -17,6 +17,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val COLUMN_AUTHOR = "author"
         const val COLUMN_DESCRIPTION = "description"
         const val COLUMN_FAVORITE = "esFavorita"
+        const val COLUMN_ADDRESS = "address" // Nuevo campo de dirección
 
         // Singleton para optimizar el acceso a la base de datos
         @Volatile
@@ -37,7 +38,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
             $COLUMN_TITLE TEXT NOT NULL,
             $COLUMN_AUTHOR TEXT,
             $COLUMN_DESCRIPTION TEXT,
-            $COLUMN_FAVORITE INTEGER DEFAULT 0
+            $COLUMN_FAVORITE INTEGER DEFAULT 0,
+            $COLUMN_ADDRESS TEXT 
         )
     """
 
@@ -48,6 +50,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE $TABLE_NOVELAS ADD COLUMN $COLUMN_FAVORITE INTEGER DEFAULT 0")
+        }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE $TABLE_NOVELAS ADD COLUMN $COLUMN_ADDRESS TEXT") // Añadir la columna dirección
         }
     }
 }

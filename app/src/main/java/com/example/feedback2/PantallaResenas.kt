@@ -68,8 +68,8 @@ fun PreviewPantallaResenas() {
     // Ejemplo de novelas para la vista previa
     PantallaResenas(
         novelas = listOf(
-            Novela("Novela 1", "Autor 1", 2022, "Sinopsis 1"),
-            Novela("Novela 2", "Autor 2", 2021, "Sinopsis 2")
+            Novela("Novela 1", "Autor 1", 2022,"Guanarteme", "Sinopsis 1"),
+            Novela("Novela 2", "Autor 2", 2021, "Mesas", "Sinopsis 2")
         ),
         onSeleccionarNovela = {}
     )

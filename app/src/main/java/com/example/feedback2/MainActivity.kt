@@ -211,31 +211,5 @@ fun NavigationHost(navController: NavHostController, viewModel: NovelaViewModel)
                 onSettingsClick = { navController.navigate("settings") }
             )
         }
-        composable("settings") {
-            val context = androidx.compose.ui.platform.LocalContext.current
-            SettingsScreen(
-                context = context,
-                onBackup = { backupDatabase(context) },
-                onRestore = { restoreDatabase(context) },
-                onBack = { navController.popBackStack() }
-            )
-        }
-        composable("agregar") {
-            AgregarNovela { novela ->
-                viewModel.agregarNovela(novela)
-                navController.popBackStack()
-            }
-        }
-        composable("detalles/{titulo}") { backStackEntry ->
-            val titulo = backStackEntry.arguments?.getString("titulo") ?: "Título no disponible"
-            val novela = novelas.firstOrNull { it.titulo == titulo }
-            novela?.let {
-                DetallesNovela(
-                    novela = it,
-                    onMarcarFavorita = { viewModel.marcarFavorita(it) },
-                    onVolver = { navController.popBackStack() }
-                )
-            }
-        }
     }
 }

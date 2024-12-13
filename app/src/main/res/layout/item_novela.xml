@@ -26,4 +26,12 @@
         android:layout_height="wrap_content"
         android:text="Año de Publicación"
         android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/direccionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dirección"
+        android:textSize="14sp" />
+
 </LinearLayout>

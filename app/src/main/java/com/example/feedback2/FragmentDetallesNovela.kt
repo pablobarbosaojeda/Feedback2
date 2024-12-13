@@ -15,11 +15,13 @@ class FragmentDetallesNovela : Fragment() {
         val tituloTextView = view.findViewById<TextView>(R.id.tituloTextView)
         val autorTextView = view.findViewById<TextView>(R.id.autorTextView)
         val sinopsisTextView = view.findViewById<TextView>(R.id.sinopsisTextView)
+        val direccionTextView = view.findViewById<TextView>(R.id.direccionTextView) // Nuevo TextView para dirección
 
         arguments?.getParcelable<Novela>("novela")?.let { novela ->
             tituloTextView.text = novela.titulo
             autorTextView.text = novela.autor
             sinopsisTextView.text = novela.sinopsis
+            direccionTextView.text = novela.direccion // Mostrar la dirección
         }
 
         return view
