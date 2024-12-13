@@ -5,7 +5,7 @@
 
 ## Descripción del Proyecto
 
-**Novel Manager** es una aplicación Android diseñada para gestionar una biblioteca personal de novelas. Permite a los usuarios organizar y mantener un registro de sus lecturas, facilitando la adición, eliminación y revisión de novelas. Los usuarios pueden destacar sus novelas favoritas y agregar reseñas para enriquecer su experiencia de lectura.
+**Novel Manager** es una aplicación Android diseñada para gestionar una biblioteca personal de novelas. Permite a los usuarios organizar y mantener un registro de sus lecturas, facilitando la adición, eliminación y revisión de novelas. Los usuarios pueden destacar sus novelas favoritas, agregar reseñas y ahora asociar ubicaciones con sus novelas.
 
 ## Funcionalidades
 
@@ -15,6 +15,7 @@
   - **Autor**: El autor de la novela.
   - **Año de publicación**: El año en que se publicó la novela.
   - **Sinopsis**: Una breve descripción del contenido de la novela.
+  - **Ubicación**: La ubicación geográfica asociada con la novela.
 
 ### 2. Eliminar Novelas
 - Posibilidad de eliminar novelas de la lista para mantener una colección actualizada y relevante.
@@ -25,6 +26,7 @@
   - Autor
   - Año de publicación
   - Sinopsis
+  - Ubicación asociada
   - Opción para marcarla como favorita.
 
 ### 4. Marcar Novelas Favoritas
@@ -41,6 +43,29 @@
 ### 7. Sincronización en Segundo Plano
 - La aplicación realiza sincronizaciones periódicas en segundo plano para mantener los datos actualizados.
 
+---
+
+## Nuevas Funcionalidades de Ubicación
+
+### 1. Mostrar Ubicación Actual
+- La aplicación utiliza el GPS del dispositivo para mostrar la ubicación actual del usuario en tiempo real.
+- Los usuarios pueden visualizar sus coordenadas de latitud y longitud en la interfaz principal.
+
+### 2. Agregar Ubicación a las Novelas
+- Permite a los usuarios asociar una ubicación geográfica con cada novela.
+- Esta funcionalidad puede ser útil para recordar dónde compraron o leyeron una novela.
+
+### 3. Mostrar Novelas en un Mapa
+- Visualiza todas las novelas agregadas en un mapa, utilizando marcadores para indicar las ubicaciones asociadas.
+- Cada marcador muestra información básica de la novela asociada, como su título y autor.
+
+### 4. Geocodificación y Geocodificación Inversa
+- Implementación de funcionalidades para convertir:
+  - Direcciones en coordenadas de latitud/longitud (geocodificación).
+  - Coordenadas de latitud/longitud en direcciones comprensibles (geocodificación inversa).
+
+---
+
 ## Funcionalidades Adicionales
 
 ### 8. Widgets
@@ -55,9 +80,6 @@
 - **Fragments Implementados**:
   - **FragmentListaNovelas**: Muestra la lista de todas las novelas en una vista adaptable que puede integrarse en múltiples configuraciones de pantalla.
   - **FragmentDetailNovelas**: Presenta los detalles de una novela seleccionada, como título, autor, año de publicación y sinopsis, y permite al usuario marcar la novela como favorita.
-- **Ventajas de Usar Fragments**:
-  - Facilita la creación de interfaces adaptativas, especialmente en dispositivos de pantalla grande.
-  - Mejora la reutilización de componentes, ya que los fragments se pueden integrar en distintas actividades o configuraciones de layout.
 
 ### 10. Optimización del Rendimiento y Uso de la Red
 - **Optimización de la Red**:
@@ -78,3 +100,13 @@
 
 ---
 
+## Requisitos Técnicos
+- **Mínimo SDK**: 21 (Android 5.0 Lollipop)
+- **Librerías utilizadas**:
+  - `Material3` para diseño moderno y adaptativo.
+  - `WorkManager` para manejar tareas en segundo plano.
+  - `LocationManager` para obtener la ubicación en tiempo real.
+
+---
+
+Con estas nuevas funcionalidades, **Novel Manager** ofrece a los usuarios una experiencia completa para gestionar su biblioteca personal, ahora enriquecida con capacidades de ubicación geográfica.
