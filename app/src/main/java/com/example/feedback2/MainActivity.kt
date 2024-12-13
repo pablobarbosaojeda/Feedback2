@@ -6,8 +6,10 @@ import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
-import android.os.Environment
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,15 +36,21 @@ import java.nio.channels.FileChannel
 import java.nio.file.StandardOpenOption
 
 class MainActivity : ComponentActivity() {
+
     private lateinit var preferencesManager: PreferencesManager
     private lateinit var internalStorageManager: InternalStorageManager
     private lateinit var externalStorageManager: ExternalStorageManager
+    private lateinit var locationManager: LocationManager
+    private var currentLocation: Location? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferencesManager = PreferencesManager(this)
         internalStorageManager = InternalStorageManager(this)
         externalStorageManager = ExternalStorageManager(this)
+
+        // Configuración de LocationManager
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
 
         // Aplicar tema basado en la preferencia
         val isDarkMode = preferencesManager.isDarkMode()
@@ -51,8 +59,9 @@ class MainActivity : ComponentActivity() {
         )
 
         // Solicitar permisos
-        requestStoragePermissions()
+        requestLocationPermissions()
 
+        // Iniciar la aplicación
         setContent {
             NovelaApp()
         }
@@ -60,31 +69,63 @@ class MainActivity : ComponentActivity() {
         scheduleJob()
     }
 
-    private fun requestStoragePermissions() {
+    // Solicitar permisos de ubicación
+    private fun requestLocationPermissions() {
         if (ContextCompat.checkSelfPermission(
                 this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_CODE_STORAGE
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                REQUEST_CODE_LOCATION
             )
+        } else {
+            startLocationUpdates()
         }
     }
 
+    // Iniciar las actualizaciones de ubicación
+    private fun startLocationUpdates() {
+        try {
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                10000L, // 10 segundos
+                10f, // 10 metros
+                object : LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        currentLocation = location
+                        // Actualizar la ubicación en tiempo real
+                        Toast.makeText(
+                            this@MainActivity,
+                            "Ubicación: ${location.latitude}, ${location.longitude}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+                    override fun onProviderEnabled(provider: String) {}
+                    override fun onProviderDisabled(provider: String) {}
+                }
+            )
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+        }
+    }
+
+    // Responder a los resultados de los permisos
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_STORAGE) {
+        if (requestCode == REQUEST_CODE_LOCATION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permiso concedido", Toast.LENGTH_SHORT).show()
+                startLocationUpdates()
             } else {
-                Toast.makeText(this, "Permiso denegado", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Permiso de ubicación denegado", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -103,6 +144,7 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         const val REQUEST_CODE_STORAGE = 1
+        const val REQUEST_CODE_LOCATION = 2
         private const val JOB_ID = 1
     }
 }
